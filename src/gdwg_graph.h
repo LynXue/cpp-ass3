@@ -75,15 +75,47 @@ namespace gdwg {
 		template<typename InputIt>
 		graph(InputIt first, InputIt last);
 
-		graph(graph&& other) noexcept = default;
+		graph(graph&& other) noexcept;
 		graph(graph const& other);
-		auto operator=(graph&& other) noexcept -> graph& = default;
+		auto operator=(graph&& other) noexcept -> graph&;
 		auto operator=(graph const& other) -> graph&;
+
+		auto insert_node(N const& value) -> bool;
+		auto insert_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+		auto replace_node(N const& old_data, N const& new_data) -> bool;
+		auto merge_replace_node(N const& old_data, N const& new_data) -> void;
+		auto erase_node(N const& value) -> bool;
+		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+		auto clear() noexcept -> void;
 
 	 private:
 		std::unordered_set<std::shared_ptr<N>> nodes_;
 		std::unordered_map<std::pair<N, N>, std::vector<std::shared_ptr<edge>>, boost::hash<std::pair<N, N>>> edges_;
 	};
+
+	// Implementation of graph member functions
+	template<typename N, typename E>
+	graph<N, E>::graph(std::initializer_list<N> il)
+	: graph(il.begin(), il.end()) {}
+
+	template<typename N, typename E>
+	template<typename InputIt>
+	graph<N, E>::graph(InputIt first, InputIt last) {
+		for (auto it = first; it != last; ++it) {
+			insert_node(*it);
+		}
+	}
+
+	template<typename N, typename E>
+	graph<N, E>::graph(graph&& other) noexcept
+	: nodes_(std::move(other.nodes_))
+	, edges_(std::move(other.edges_)) {}
+
+	template<typename N, typename E>
+	graph<N, E>::graph(graph const& other)
+	: nodes_(other.nodes_)
+	, edges_(other.edges_) {}
+
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

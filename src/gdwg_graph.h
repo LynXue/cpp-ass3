@@ -221,6 +221,35 @@ namespace gdwg {
 		return true;
 	}
 
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::is_node(N const& value) const noexcept -> bool {
+		return node_values_.find(value) != node_values_.end();
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
+		if (not is_node(src) or not is_node(dst)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::insert_edge when either src or dst node does not "
+			                         "exist");
+		}
+
+		std::shared_ptr<edge> new_edge;
+		if (weight.has_value()) {
+			new_edge = std::make_shared<weighted_edge<N, E>>(src, dst, weight.value());
+		}
+		else {
+			new_edge = std::make_shared<unweighted_edge<N, E>>(src, dst);
+		}
+
+		auto& edge_list = edges_[{src, dst}];
+		for (const auto& e : edge_list) {
+			if (e->get_weight() == new_edge->get_weight()) {
+				return false;
+			}
+		}
+		edge_list.push_back(new_edge);
+		return true;
+	}
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

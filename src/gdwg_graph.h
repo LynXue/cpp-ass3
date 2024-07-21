@@ -116,6 +116,24 @@ namespace gdwg {
 	: nodes_(other.nodes_)
 	, edges_(other.edges_) {}
 
+	template<typename N, typename E>
+	auto graph<N, E>::operator=(graph&& other) noexcept -> graph& {
+		if (this != &other) {
+			nodes_ = std::move(other.nodes_);
+			edges_ = std::move(other.edges_);
+		}
+		return *this;
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::operator=(graph const& other) -> graph& {
+		if (this != &other) {
+			nodes_ = other.nodes_;
+			edges_ = other.edges_;
+		}
+		return *this;
+	}
+
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

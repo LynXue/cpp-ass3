@@ -93,6 +93,48 @@ namespace gdwg {
 		std::unordered_map<std::pair<N, N>, std::vector<std::shared_ptr<edge>>, boost::hash<std::pair<N, N>>> edges_;
 	};
 
+	// Implementation of edge class member functions
+
+	template<typename N, typename E>
+	auto weighted_edge<N, E>::print_edge() const -> std::string {
+		return *src_ + " -> " + *dst_ + " | W | " + std::to_string(weight_);
+	}
+
+	template<typename N, typename E>
+	auto weighted_edge<N, E>::is_weighted() const -> bool {
+		return true;
+	}
+
+	template<typename N, typename E>
+	auto weighted_edge<N, E>::get_weight() const -> std::optional<E> {
+		return weight_;
+	}
+
+	template<typename N, typename E>
+	auto weighted_edge<N, E>::get_nodes() const -> std::pair<N, N> {
+		return {*src_, *dst_};
+	}
+
+	template<typename N, typename E>
+	auto unweighted_edge<N, E>::print_edge() const -> std::string {
+		return *src_ + " -> " + *dst_ + " | U";
+	}
+
+	template<typename N, typename E>
+	auto unweighted_edge<N, E>::is_weighted() const -> bool {
+		return false;
+	}
+
+	template<typename N, typename E>
+	auto unweighted_edge<N, E>::get_weight() const -> std::optional<int> {
+		return std::nullopt;
+	}
+
+	template<typename N, typename E>
+	auto unweighted_edge<N, E>::get_nodes() const -> std::pair<N, N> {
+		return {*src_, *dst_};
+	}
+
 	// Implementation of graph member functions
 	template<typename N, typename E>
 	graph<N, E>::graph(std::initializer_list<N> il)

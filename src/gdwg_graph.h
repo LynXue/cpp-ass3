@@ -69,7 +69,29 @@ namespace gdwg {
 	 public:
 		using edge = gdwg::edge<N, E>;
 
-		// Your member functions go here
+		class iterator {
+		 public:
+			using value_type = struct {
+				N from;
+				N to;
+				std::optional<E> weight;
+			};
+			using reference = value_type;
+			using pointer = void;
+			using difference_type = std::ptrdiff_t;
+			using iterator_category = std::bidirectional_iterator_tag;
+
+			iterator() = default;
+			auto operator*() -> reference;
+			auto operator++() -> iterator&;
+			auto operator++(int) -> iterator;
+			auto operator--() -> iterator&;
+			auto operator--(int) -> iterator;
+			auto operator==(iterator const& other) const -> bool;
+
+		 private:
+		};
+
 		graph() = default;
 		graph(std::initializer_list<N> il);
 		template<typename InputIt>
@@ -88,8 +110,20 @@ namespace gdwg {
 		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 		auto clear() noexcept -> void;
 
+		[[nodiscard]] auto is_node(N const& value) const noexcept -> bool;
+		[[nodiscard]] auto empty() const noexcept -> bool;
+		[[nodiscard]] auto is_connected(N const& src, N const& dst) const -> bool;
+		[[nodiscard]] auto nodes() const -> std::vector<N>;
+		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::shared_ptr<edge>>;
+		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const -> iterator;
+		[[nodiscard]] auto connections(N const& src) const -> std::vector<N>;
+
+		[[nodiscard]] auto begin() const -> iterator;
+		[[nodiscard]] auto end() const -> iterator;
+
 	 private:
 		std::unordered_set<std::shared_ptr<N>> nodes_;
+		std::unordered_set<N> node_values_;
 		std::unordered_map<std::pair<N, N>, std::vector<std::shared_ptr<edge>>, boost::hash<std::pair<N, N>>> edges_;
 	};
 
@@ -174,6 +208,17 @@ namespace gdwg {
 			edges_ = other.edges_;
 		}
 		return *this;
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::insert_node(N const& value) -> bool {
+		if (node_values_.find(value) != node_values_.end()) {
+			return false;
+		}
+		auto node = std::make_shared<N>(value);
+		nodes_.insert(node);
+		node_values_.insert(value);
+		return true;
 	}
 
 } // namespace gdwg

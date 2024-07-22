@@ -13,7 +13,7 @@
 - 21/07/2024 Added `operator==` for `edge` & clearer requirement of `unweighted_edge`, `weighted_edge`'s constructor to be `public`
 - 21/07/2024 Starter code: Get rid of `edge` type alias & Fix outdated code in `client.cpp`
 - 21/07/2024 Remove lexicographic in describing order `nodes`, `edges` & correct expression on order
-
+- 22/07/2024 Correct `print_edge` output to be single space
 
 # 2 The Task <a name="2-the-task"></a>
 
@@ -152,7 +152,7 @@ auto print_edge() -> std::string;
 ```
   1. *Effects*: Returns a string representation of the edge.
   2. *Returns*: A string representation of the edge.
-  3. *Remarks*: The format of the string representation is `src -> dst | W |  weight` if the edge is weighted, and `src -> dst | U` if the edge is unweighted.
+  3. *Remarks*: The format of the string representation is `src -> dst | W | weight` if the edge is weighted, and `src -> dst | U` if the edge is unweighted.
   * Note: `print_edge` will be used in the `operator<<` overload for the `graph` class.
 ```cpp
 auto is_weighted() -> bool;

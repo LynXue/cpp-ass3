@@ -123,7 +123,6 @@ namespace gdwg {
 
 	 private:
 		std::unordered_set<std::shared_ptr<N>> nodes_;
-		std::unordered_set<N> node_values_;
 		std::unordered_map<std::pair<N, N>, std::vector<std::shared_ptr<edge>>, boost::hash<std::pair<N, N>>> edges_;
 	};
 
@@ -212,18 +211,29 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto graph<N, E>::insert_node(N const& value) -> bool {
-		if (node_values_.find(value) != node_values_.end()) {
-			return false;
+		// Check if the node already exists
+		for (const auto& node : nodes_) {
+			if (*node == value) {
+				return false;
+			}
 		}
-		auto node = std::make_shared<N>(value);
-		nodes_.insert(node);
-		node_values_.insert(value);
+
+		// Insert the new node
+		auto new_node = std::make_shared<N>(value);
+		nodes_.insert(new_node);
+
+		// Invalidate all iterators by clearing and reconstructing the edges map
+		auto temp_edges = std::move(edges_);
+		edges_.clear();
+		for (auto& [key, edge_list] : temp_edges) {
+			edges_[key] = std::move(edge_list);
+		}
 		return true;
 	}
 
 	template<typename N, typename E>
 	[[nodiscard]] auto graph<N, E>::is_node(N const& value) const noexcept -> bool {
-		return node_values_.find(value) != node_values_.end();
+		return std::any_of(nodes_.begin(), nodes_.end(), [&](const std::shared_ptr<N>& node) { return *node == value; });
 	}
 
 	template<typename N, typename E>
@@ -247,7 +257,15 @@ namespace gdwg {
 				return false;
 			}
 		}
-		edge_list.push_back(new_edge);
+
+		// Invalidate all iterators by clearing and reconstructing the edges map
+		auto temp_edges = std::move(edges_);
+		edges_.clear();
+		for (auto& [key, edge_list] : temp_edges) {
+			edges_[key] = std::move(edge_list);
+		}
+
+		edges_[{src, dst}].push_back(new_edge);
 		return true;
 	}
 } // namespace gdwg

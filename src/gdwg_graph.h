@@ -130,7 +130,9 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto weighted_edge<N, E>::print_edge() const -> std::string {
-		return *src_ + " -> " + *dst_ + " | W | " + std::to_string(weight_);
+		std::ostringstream oss;
+		oss << *src_ << " -> " << *dst_ << " | W | " << weight_;
+		return oss.str();
 	}
 
 	template<typename N, typename E>
@@ -150,7 +152,9 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto unweighted_edge<N, E>::print_edge() const -> std::string {
-		return *src_ + " -> " + *dst_ + " | U";
+		std::ostringstream oss;
+		oss << *src_ << " -> " << *dst_ << " | U";
+		return oss.str();
 	}
 
 	template<typename N, typename E>

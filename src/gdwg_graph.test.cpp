@@ -51,3 +51,44 @@ TEST_CASE("replace non-existing node") {
 
 	REQUIRE_THROWS_WITH(g.replace_node(4, 5), "Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
 }
+
+TEST_CASE("replace existing node and update edges") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(2, 3, "edge2");
+	g.insert_edge(1, 3, "edge3");
+
+	REQUIRE(g.replace_node(2, 4) == true);
+	REQUIRE(g.is_node(2) == false);
+	REQUIRE(g.is_node(4) == true);
+	REQUIRE(g.is_connected(1, 4) == true);
+	REQUIRE(g.is_connected(4, 3) == true);
+}
+
+TEST_CASE("replace node with existing node") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+
+	REQUIRE(g.replace_node(1, 2) == false);
+}
+
+TEST_CASE("merge_replace_node: old_data or new_data does not exist") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+
+	g.insert_edge("A", "B", 1);
+
+	REQUIRE_THROWS_WITH(g.merge_replace_node("C", "A"),
+	                    "Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't exist in "
+	                    "the graph");
+
+	REQUIRE_THROWS_WITH(g.merge_replace_node("A", "C"),
+	                    "Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't exist in "
+	                    "the graph");
+}

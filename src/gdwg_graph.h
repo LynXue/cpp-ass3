@@ -206,9 +206,21 @@ namespace gdwg {
 	, edges_(std::move(other.edges_)) {}
 
 	template<typename N, typename E>
-	graph<N, E>::graph(graph const& other)
-	: nodes_(other.nodes_)
-	, edges_(other.edges_) {}
+	graph<N, E>::graph(graph const& other) {
+		nodes_ = other.nodes_;
+
+		for (const auto& edge_ptr : other.edges_) {
+			if (edge_ptr->is_weighted()) {
+				auto [src, dst] = edge_ptr->get_nodes();
+				auto weight = edge_ptr->get_weight();
+				edges_.insert(std::make_unique<weighted_edge<N, E>>(src, dst, *weight));
+			}
+			else {
+				auto [src, dst] = edge_ptr->get_nodes();
+				edges_.insert(std::make_unique<unweighted_edge<N, E>>(src, dst));
+			}
+		}
+	}
 
 	template<typename N, typename E>
 	auto graph<N, E>::operator=(graph&& other) noexcept -> graph& {
@@ -221,9 +233,21 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto graph<N, E>::operator=(graph const& other) -> graph& {
-		if (this != &other) {
-			nodes_ = other.nodes_;
-			edges_ = other.edges_;
+		if (this == &other) {
+			return *this;
+		}
+		nodes_ = other.nodes_;
+		edges_.clear();
+		for (const auto& edge_ptr : other.edges_) {
+			if (edge_ptr->is_weighted()) {
+				auto [src, dst] = edge_ptr->get_nodes();
+				auto weight = edge_ptr->get_weight();
+				edges_.insert(std::make_unique<weighted_edge<N, E>>(src, dst, *weight));
+			}
+			else {
+				auto [src, dst] = edge_ptr->get_nodes();
+				edges_.insert(std::make_unique<unweighted_edge<N, E>>(src, dst));
+			}
 		}
 		return *this;
 	}

@@ -445,6 +445,53 @@ namespace gdwg {
 		auto old_node_it = nodes_.find(old_data);
 		nodes_.erase(old_node_it);
 	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::erase_node(N const& value) -> bool {
+		auto node_it = nodes_.find(value);
+		if (node_it == nodes_.end()) {
+			return false;
+		}
+
+		for (auto it = edges_.begin(); it != edges_.end();) {
+			auto nodes = (*it)->get_nodes();
+			if (nodes.first == value || nodes.second == value) {
+				it = edges_.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
+		nodes_.erase(node_it);
+
+		return true;
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
+		if (not is_node(src) or not is_node(dst)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in "
+			                         "the graph");
+		}
+
+		for (auto it = edges_.begin(); it != edges_.end(); ++it) {
+			auto& e = *it;
+			auto nodes = e->get_nodes();
+			if (nodes.first == src && nodes.second == dst) {
+				if (!weight.has_value() && !e->is_weighted()) {
+					edges_.erase(it);
+					return true;
+				}
+				if (weight.has_value() && e->is_weighted() && e->get_weight() == weight) {
+					edges_.erase(it);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

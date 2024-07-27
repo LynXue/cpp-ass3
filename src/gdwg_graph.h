@@ -69,6 +69,31 @@ namespace gdwg {
 	 public:
 		using edge = gdwg::edge<N, E>;
 
+		struct edge_cmp {
+			bool operator()(const std::unique_ptr<edge>& lhs, const std::unique_ptr<edge>& rhs) const {
+				auto lhs_nodes = lhs->get_nodes();
+				auto rhs_nodes = rhs->get_nodes();
+
+				if (lhs_nodes.first != rhs_nodes.first) {
+					return lhs_nodes.first < rhs_nodes.first;
+				}
+
+				if (lhs_nodes.second != rhs_nodes.second) {
+					return lhs_nodes.second < rhs_nodes.second;
+				}
+
+				if (lhs->is_weighted() != rhs->is_weighted()) {
+					return !lhs->is_weighted();
+				}
+
+				if (lhs->is_weighted() && rhs->is_weighted()) {
+					return lhs->get_weight() < rhs->get_weight();
+				}
+
+				return lhs < rhs;
+			}
+		};
+
 		class iterator {
 		 public:
 			using value_type = struct {
@@ -138,7 +163,7 @@ namespace gdwg {
 		};
 
 		std::set<std::shared_ptr<N>, node_cmp> nodes_;
-		std::set<std::unique_ptr<edge>> edges_;
+		std::set<std::unique_ptr<edge>, edge_cmp> edges_;
 	};
 
 	// Implementation of edge class member functions

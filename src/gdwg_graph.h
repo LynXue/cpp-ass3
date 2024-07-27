@@ -397,6 +397,54 @@ namespace gdwg {
 		std::sort(result.begin(), result.end());
 		return result;
 	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::merge_replace_node(N const& old_data, N const& new_data) -> void {
+		if (not is_node(old_data) or not is_node(new_data)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they "
+			                         "don't exist in the graph");
+		}
+
+		std::vector<std::unique_ptr<edge>> new_edges;
+		for (auto it = edges_.begin(); it != edges_.end();) {
+			auto& e = *it;
+			auto nodes = e->get_nodes();
+			bool modified = false;
+
+			if (nodes.first == old_data) {
+				nodes.first = new_data;
+				modified = true;
+			}
+			if (nodes.second == old_data) {
+				nodes.second = new_data;
+				modified = true;
+			}
+
+			if (modified) {
+				std::unique_ptr<edge> new_edge;
+				if (e->is_weighted()) {
+					new_edge = std::make_unique<weighted_edge<N, E>>(nodes.first, nodes.second, *e->get_weight());
+				}
+				else {
+					new_edge = std::make_unique<unweighted_edge<N, E>>(nodes.first, nodes.second);
+				}
+
+				if (edges_.find(new_edge) == edges_.end()) {
+					new_edges.push_back(std::move(new_edge));
+				}
+
+				it = edges_.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		for (auto& new_edge : new_edges) {
+			edges_.insert(std::move(new_edge));
+		}
+		auto old_node_it = nodes_.find(old_data);
+		nodes_.erase(old_node_it);
+	}
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

@@ -42,3 +42,12 @@ TEST_CASE("Insert edge with non-existent nodes throws runtime_error") {
 
 	REQUIRE_NOTHROW(g.insert_edge("A", "B", 5));
 }
+
+TEST_CASE("replace non-existing node") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+
+	REQUIRE_THROWS_WITH(g.replace_node(4, 5), "Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
+}

@@ -56,7 +56,7 @@ namespace gdwg {
 
 		auto print_edge() const -> std::string override;
 		auto is_weighted() const -> bool override;
-		auto get_weight() const -> std::optional<int> override;
+		auto get_weight() const -> std::optional<E> override;
 		auto get_nodes() const -> std::pair<N, N> override;
 
 	 private:
@@ -203,7 +203,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	auto unweighted_edge<N, E>::get_weight() const -> std::optional<int> {
+	auto unweighted_edge<N, E>::get_weight() const -> std::optional<E> {
 		return std::nullopt;
 	}
 
@@ -364,6 +364,38 @@ namespace gdwg {
 		}
 
 		return true;
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::is_connected(N const& src, N const& dst) const -> bool {
+		if (not is_node(src) or not is_node(dst)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in "
+			                         "the graph");
+		}
+
+		for (const auto& edge : edges_) {
+			auto nodes = edge->get_nodes();
+			if (nodes.first == src && nodes.second == dst) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::empty() const noexcept -> bool {
+		return nodes_.empty();
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::nodes() const -> std::vector<N> {
+		std::vector<N> result;
+		result.reserve(nodes_.size());
+		for (const auto& node_ptr : nodes_) {
+			result.push_back(*node_ptr);
+		}
+		std::sort(result.begin(), result.end());
+		return result;
 	}
 } // namespace gdwg
 

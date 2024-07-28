@@ -523,6 +523,29 @@ namespace gdwg {
 		return false;
 	}
 
+	template<typename N, typename E>
+	auto graph<N, E>::erase_edge(iterator i) -> iterator {
+		auto it = i.it_;
+		auto next_it = edges_.erase(it);
+
+		return iterator(next_it);
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::erase_edge(iterator i, iterator s) -> iterator {
+		auto it = i.it_;
+		auto end_it = s.it_;
+		auto next_it = edges_.erase(it, end_it);
+
+		return iterator(next_it);
+	}
+
+	template<typename N, typename E>
+	auto graph<N, E>::clear() noexcept -> void {
+		nodes_.clear();
+		edges_.clear();
+	}
+
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

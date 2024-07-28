@@ -546,6 +546,52 @@ namespace gdwg {
 		edges_.clear();
 	}
 
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const -> iterator {
+		for (auto it = edges_.begin(); it != edges_.end(); ++it) {
+			auto& e = *it;
+			auto nodes = e->get_nodes();
+			if (nodes.first == src && nodes.second == dst) {
+				if (!weight.has_value() && !e->is_weighted()) {
+					return iterator(it);
+				}
+				if (weight.has_value() && e->is_weighted() && e->get_weight() == weight) {
+					return iterator(it);
+				}
+			}
+		}
+
+		return end();
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::begin() const -> iterator {
+		return iterator(edges_.begin());
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::end() const -> iterator {
+		return iterator(edges_.end());
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::connections(N const& src) const -> std::vector<N> {
+		if (!is_node(src)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+		}
+
+		std::vector<N> connected_nodes;
+		for (const auto& e : edges_) {
+			auto nodes = e->get_nodes();
+			if (nodes.first == src) {
+				connected_nodes.push_back(nodes.second);
+			}
+		}
+
+		std::sort(connected_nodes.begin(), connected_nodes.end());
+		return connected_nodes;
+	}
+
 } // namespace gdwg
 
 #endif // GDWG_GRAPH_H

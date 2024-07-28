@@ -162,6 +162,8 @@ namespace gdwg {
 		auto merge_replace_node(N const& old_data, N const& new_data) -> void;
 		auto erase_node(N const& value) -> bool;
 		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+		auto erase_edge(iterator i) -> iterator;
+		auto erase_edge(iterator i, iterator s) -> iterator;
 		auto clear() noexcept -> void;
 
 		[[nodiscard]] auto is_node(N const& value) const noexcept -> bool;

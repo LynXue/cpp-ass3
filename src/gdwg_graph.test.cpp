@@ -102,3 +102,31 @@ TEST_CASE("Erase a weighted edge that exists") {
 	REQUIRE(g.erase_edge("A", "B", 1) == true);
 	REQUIRE(g.is_connected("A", "B") == false);
 }
+
+TEST_CASE("Erase an unweighted edge that exists") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B");
+
+	REQUIRE(g.erase_edge("A", "B") == true);
+	REQUIRE(g.is_connected("A", "B") == false);
+}
+
+TEST_CASE("Erase an unweighted edge that does not exist") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+
+	REQUIRE(g.erase_edge("A", "B") == false);
+}
+
+TEST_CASE("Erase an edge when either src or dst node does not exist", "[graph][erase_edge]") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+
+	REQUIRE_THROWS_WITH(g.erase_edge("A", "B"),
+	                    "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
+	REQUIRE_THROWS_WITH(g.erase_edge("B", "A"),
+	                    "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
+}

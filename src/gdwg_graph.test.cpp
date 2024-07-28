@@ -92,3 +92,13 @@ TEST_CASE("merge_replace_node: old_data or new_data does not exist") {
 	                    "Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't exist in "
 	                    "the graph");
 }
+
+TEST_CASE("Erase a weighted edge that exists") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+
+	REQUIRE(g.erase_edge("A", "B", 1) == true);
+	REQUIRE(g.is_connected("A", "B") == false);
+}

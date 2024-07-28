@@ -107,14 +107,43 @@ namespace gdwg {
 			using iterator_category = std::bidirectional_iterator_tag;
 
 			iterator() = default;
-			auto operator*() -> reference;
-			auto operator++() -> iterator&;
-			auto operator++(int) -> iterator;
-			auto operator--() -> iterator&;
-			auto operator--(int) -> iterator;
-			auto operator==(iterator const& other) const -> bool;
+			explicit iterator(typename std::set<std::unique_ptr<edge>, edge_cmp>::iterator it)
+			: it_(it) {}
+
+			// Iterator source
+			auto operator*() -> reference {
+				auto nodes = (*it_)->get_nodes();
+				return {nodes.first, nodes.second, (*it_)->get_weight()};
+			}
+
+			// Iterator traversal
+			auto operator++() -> iterator& {
+				++it_;
+				return *this;
+			}
+			auto operator++(int) -> iterator {
+				auto temp = *this;
+				++it_;
+				return temp;
+			}
+			auto operator--() -> iterator& {
+				--it_;
+				return *this;
+			}
+			auto operator--(int) -> iterator {
+				auto temp = *this;
+				--it_;
+				return temp;
+			}
+
+			// Iterator comparison
+			auto operator==(iterator const& other) const -> bool {
+				return it_ == other.it_;
+			}
 
 		 private:
+			typename std::set<std::unique_ptr<edge>, edge_cmp>::iterator it_;
+			friend class graph<N, E>;
 		};
 
 		graph() = default;

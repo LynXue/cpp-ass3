@@ -140,3 +140,21 @@ TEST_CASE("Erase the last edge using iterator") {
 
 	REQUIRE(g.is_connected("A", "B") == false);
 }
+
+TEST_CASE("Erase an edge with multiple edges existing") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("B", "C", 3);
+	g.insert_edge("C", "A", 4);
+
+	auto it = g.find("B", "C", 3);
+	auto next_it = g.erase_edge(it);
+
+	REQUIRE((*next_it).from == "C");
+	REQUIRE((*next_it).to == "A");
+	REQUIRE((*next_it).weight == 4);
+
+	REQUIRE(g.is_connected("B", "C") == false);
+}

@@ -170,7 +170,7 @@ namespace gdwg {
 		[[nodiscard]] auto empty() const noexcept -> bool;
 		[[nodiscard]] auto is_connected(N const& src, N const& dst) const -> bool;
 		[[nodiscard]] auto nodes() const -> std::vector<N>;
-		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::shared_ptr<edge>>;
+		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
 		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const -> iterator;
 		[[nodiscard]] auto connections(N const& src) const -> std::vector<N>;
 
@@ -576,7 +576,7 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	[[nodiscard]] auto graph<N, E>::connections(N const& src) const -> std::vector<N> {
-		if (!is_node(src)) {
+		if (not is_node(src)) {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
 		}
 
@@ -590,6 +590,30 @@ namespace gdwg {
 
 		std::sort(connected_nodes.begin(), connected_nodes.end());
 		return connected_nodes;
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
+		if (!is_node(src) || !is_node(dst)) {
+			throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the "
+			                         "graph");
+		}
+
+		std::vector<std::unique_ptr<edge>> result;
+
+		for (const auto& e : edges_) {
+			auto nodes = e->get_nodes();
+			if (nodes.first == src && nodes.second == dst) {
+				if (e->is_weighted()) {
+					result.push_back(std::make_unique<weighted_edge<N, E>>(nodes.first, nodes.second, *e->get_weight()));
+				}
+				else {
+					result.push_back(std::make_unique<unweighted_edge<N, E>>(nodes.first, nodes.second));
+				}
+			}
+		}
+
+		return result;
 	}
 
 } // namespace gdwg

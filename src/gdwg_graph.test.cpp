@@ -147,7 +147,7 @@ TEST_CASE("Erase an edge when either src or dst node does not exist", "[graph][e
 	                    "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
 }
 
-TEST_CASE("Erase an edge using iterator") {
+TEST_CASE("erase_edge(iterator): Erase an edge using iterator") {
 	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
 
 	g.insert_edge("A", "B", 1);
@@ -164,7 +164,7 @@ TEST_CASE("Erase an edge using iterator") {
 	REQUIRE(g.is_connected("A", "B") == false);
 }
 
-TEST_CASE("Erase the last edge using iterator") {
+TEST_CASE("erase_edge(iterator): Erase the last edge") {
 	auto g = gdwg::graph<std::string, int>{"A", "B"};
 
 	g.insert_edge("A", "B", 1);
@@ -177,7 +177,7 @@ TEST_CASE("Erase the last edge using iterator") {
 	REQUIRE(g.is_connected("A", "B") == false);
 }
 
-TEST_CASE("Erase an edge with multiple edges existing") {
+TEST_CASE("erase_edge(iterator): Erase an edge with multiple edges existing") {
 	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
 
 	g.insert_edge("A", "B", 1);
@@ -193,4 +193,50 @@ TEST_CASE("Erase an edge with multiple edges existing") {
 	REQUIRE((*next_it).weight == 4);
 
 	REQUIRE(g.is_connected("B", "C") == false);
+}
+
+TEST_CASE("erase_edge(iterator): Erase an edge when no such edge exists") {
+	auto g = gdwg::graph<std::string, int>{"A", "B"};
+
+	g.insert_edge("A", "B", 1);
+
+	auto it = g.find("A", "B", 1);
+	g.erase_edge(it);
+
+	REQUIRE(g.is_connected("A", "B") == false);
+
+	auto invalid_it = g.find("A", "B", 1);
+	REQUIRE(invalid_it == g.end());
+}
+
+TEST_CASE("erase_edge(iterator, iterator) test") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C", "D"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("A", "D", 3);
+	g.insert_edge("B", "C", 4);
+	g.insert_edge("C", "D", 5);
+
+	auto it1 = g.find("A", "B", 1);
+	auto it2 = g.find("B", "C", 4);
+
+	REQUIRE(it1 != g.end());
+	REQUIRE(it2 != g.end());
+
+	auto next_it = g.erase_edge(it1, it2);
+
+	REQUIRE(next_it == it2);
+
+	auto edges = g.edges("A", "B");
+	REQUIRE(edges.size() == 0);
+
+	edges = g.edges("A", "D");
+	REQUIRE(edges.size() == 0);
+
+	edges = g.edges("B", "C");
+	REQUIRE(edges.size() == 1);
+
+	edges = g.edges("C", "D");
+	REQUIRE(edges.size() == 1);
 }

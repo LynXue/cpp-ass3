@@ -78,6 +78,42 @@ TEST_CASE("merge_replace_node: old_data or new_data does not exist") {
 	                    "the graph");
 }
 
+TEST_CASE("merge_replace_node: duplicate edges") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C", "D"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("B", "C", 3);
+	g.insert_edge("D", "B", 1);
+
+	g.merge_replace_node("A", "D");
+
+	REQUIRE(g.is_connected("D", "B") == true);
+	REQUIRE(g.is_connected("D", "C") == true);
+
+	auto edges = g.edges("D", "B");
+	REQUIRE(edges.size() == 1);
+}
+
+TEST_CASE("merge_replace_node: no duplicate edges") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C", "D"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("B", "C", 3);
+	g.insert_edge("D", "B", 2);
+
+	g.merge_replace_node("A", "D");
+
+	REQUIRE(g.is_connected("D", "B") == true);
+	REQUIRE(g.is_connected("D", "C") == true);
+
+	auto edges = g.edges("D", "B");
+	REQUIRE(edges.size() == 2);
+	REQUIRE(edges[0]->get_weight().value() == 1);
+	REQUIRE(edges[1]->get_weight().value() == 2);
+}
+
 TEST_CASE("Erase a weighted edge that exists") {
 	auto g = gdwg::graph<std::string, int>{"A", "B"};
 

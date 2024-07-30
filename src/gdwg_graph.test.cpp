@@ -289,61 +289,60 @@ TEST_CASE("find edge function test: Multiple edges") {
 	REQUIRE((*it2).weight == 2);
 }
 
-TEST_CASE("connections() test: Connections from a node that exists and Connections are sorted in ascending order") {
-	auto g = gdwg::graph<std::string, int>{"A", "B", "C", "D"};
+TEST_CASE("connections() function tests", "[graph][connections]") {
+	using graph = gdwg::graph<std::string, int>;
 
-	g.insert_edge("A", "D", 3);
-	g.insert_edge("A", "C", 2);
-	g.insert_edge("A", "B", 1);
+	SECTION("Connections from a node that exists and connections are sorted in ascending order") {
+		auto g = graph{"A", "B", "C", "D"};
+		g.insert_edge("A", "D", 3);
+		g.insert_edge("A", "C", 2);
+		g.insert_edge("A", "B", 1);
+		std::vector<std::string> expected = {"B", "C", "D"};
+		auto result = g.connections("A");
+		REQUIRE(result == expected);
+	}
 
-	std::vector<std::string> expected = {"B", "C", "D"};
-	auto result = g.connections("A");
+	SECTION("Connections from a node with no outgoing edges") {
+		auto g = graph{"A", "B"};
+		g.insert_edge("A", "B", 1);
+		std::vector<std::string> expected = {};
+		auto result = g.connections("B");
+		REQUIRE(result == expected);
+	}
 
-	REQUIRE(result == expected);
-}
-
-TEST_CASE("connections() test: Connections from a node with no outgoing edges") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
-
-	g.insert_edge("A", "B", 1);
-
-	std::vector<std::string> expected = {};
-	auto result = g.connections("B");
-
-	REQUIRE(result == expected);
-}
-
-TEST_CASE("connections() test: Connections from a node that does not exist") {
-	auto g = gdwg::graph<std::string, int>{"A"};
-
-	REQUIRE_THROWS_WITH(g.connections("B"),
-	                    "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+	SECTION("Connections from a node that does not exist") {
+		auto g = graph{"A"};
+		REQUIRE_THROWS_WITH(g.connections("B"),
+		                    "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+	}
 }
 
 TEST_CASE("Nodes function returns all stored nodes sorted in ascending order", "[graph][nodes]") {
+	using graph = gdwg::graph<std::string, int>;
+
 	SECTION("Empty graph") {
-		auto g = gdwg::graph<std::string, int>{};
+		auto g = graph{};
 		std::vector<std::string> expected = {};
 		auto result = g.nodes();
 		REQUIRE(result == expected);
 	}
 
 	SECTION("Single node") {
-		auto g = gdwg::graph<std::string, int>{"A"};
+		auto g = graph{"A"};
 		std::vector<std::string> expected = {"A"};
 		auto result = g.nodes();
 		REQUIRE(result == expected);
 	}
 
 	SECTION("Multiple nodes, sorted in ascending order") {
-		auto g = gdwg::graph<std::string, int>{"D", "C", "A", "B"};
+		auto g = graph{"D", "C", "A", "B"};
 		std::vector<std::string> expected = {"A", "B", "C", "D"};
 		auto result = g.nodes();
 		REQUIRE(result == expected);
 	}
 
 	SECTION("Nodes with edges") {
-		auto g = gdwg::graph<std::string, int>{"C", "A", "B"};
+		auto g = graph{"C", "A", "B"};
 		g.insert_edge("A", "B", 1);
 		g.insert_edge("B", "C", 2);
 		std::vector<std::string> expected = {"A", "B", "C"};

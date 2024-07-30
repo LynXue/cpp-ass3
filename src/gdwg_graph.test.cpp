@@ -240,3 +240,51 @@ TEST_CASE("erase_edge(iterator, iterator) test") {
 	edges = g.edges("C", "D");
 	REQUIRE(edges.size() == 1);
 }
+
+TEST_CASE("find edge function test: Edge not found") {
+	auto g = gdwg::graph<std::string, int>{};
+	REQUIRE(g.find("A", "B") == g.end());
+}
+
+TEST_CASE("find edge function test: Single unweighted edge") {
+	auto g = gdwg::graph<std::string, int>{"A", "B"};
+
+	g.insert_edge("A", "B");
+
+	auto it = g.find("A", "B");
+	REQUIRE(it != g.end());
+	REQUIRE((*it).from == "A");
+	REQUIRE((*it).to == "B");
+	REQUIRE(not(*it).weight.has_value());
+}
+
+TEST_CASE("find edge function test: Single weighted edge") {
+	auto g = gdwg::graph<std::string, int>{"A", "B"};
+
+	g.insert_edge("A", "B", 5);
+
+	auto it = g.find("A", "B", 5);
+	REQUIRE(it != g.end());
+	REQUIRE((*it).from == "A");
+	REQUIRE((*it).to == "B");
+	REQUIRE((*it).weight == 5);
+}
+
+TEST_CASE("find edge function test: Multiple edges") {
+	auto g = gdwg::graph<std::string, int>{"A", "B"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "B", 2);
+
+	auto it1 = g.find("A", "B", 1);
+	REQUIRE(it1 != g.end());
+	REQUIRE((*it1).from == "A");
+	REQUIRE((*it1).to == "B");
+	REQUIRE((*it1).weight == 1);
+
+	auto it2 = g.find("A", "B", 2);
+	REQUIRE(it2 != g.end());
+	REQUIRE((*it2).from == "A");
+	REQUIRE((*it2).to == "B");
+	REQUIRE((*it2).weight == 2);
+}

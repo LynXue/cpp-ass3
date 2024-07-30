@@ -23,6 +23,8 @@ namespace gdwg {
 		virtual auto get_weight() const -> std::optional<E> = 0;
 		virtual auto get_nodes() const -> std::pair<N, N> = 0;
 
+		virtual auto operator==(edge<N, E> const& other) const -> bool = 0;
+
 	 private:
 		// You may need to add data members and member functions
 		// friend class graph<N, E>;
@@ -41,6 +43,8 @@ namespace gdwg {
 		auto get_weight() const -> std::optional<E> override;
 		auto get_nodes() const -> std::pair<N, N> override;
 
+		auto operator==(edge<N, E> const& other) const -> bool override;
+
 	 private:
 		std::shared_ptr<N> src_;
 		std::shared_ptr<N> dst_;
@@ -58,6 +62,8 @@ namespace gdwg {
 		auto is_weighted() const -> bool override;
 		auto get_weight() const -> std::optional<E> override;
 		auto get_nodes() const -> std::pair<N, N> override;
+
+		auto operator==(edge<N, E> const& other) const -> bool override;
 
 	 private:
 		std::shared_ptr<N> src_;
@@ -222,6 +228,12 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
+	auto weighted_edge<N, E>::operator==(edge<N, E> const& other) const -> bool {
+		auto other_nodes = other.get_nodes();
+		return *src_ == other_nodes.first and *dst_ == other_nodes.second and weight_ == other.get_weight();
+	}
+
+	template<typename N, typename E>
 	auto unweighted_edge<N, E>::print_edge() const -> std::string {
 		std::ostringstream oss;
 		oss << *src_ << " -> " << *dst_ << " | U";
@@ -241,6 +253,12 @@ namespace gdwg {
 	template<typename N, typename E>
 	auto unweighted_edge<N, E>::get_nodes() const -> std::pair<N, N> {
 		return {*src_, *dst_};
+	}
+
+	template<typename N, typename E>
+	auto unweighted_edge<N, E>::operator==(edge<N, E> const& other) const -> bool {
+		auto other_nodes = other.get_nodes();
+		return *src_ == other_nodes.first and *dst_ == other_nodes.second;
 	}
 
 	// Implementation of graph member functions

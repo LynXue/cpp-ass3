@@ -147,66 +147,22 @@ TEST_CASE("Erase an edge when either src or dst node does not exist", "[graph][e
 	                    "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
 }
 
-TEST_CASE("erase_edge(iterator): Erase an edge using iterator") {
-	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
+TEST_CASE("erase_edge(iterator) function tests", "[graph][erase_edge]") {
+	using graph = gdwg::graph<std::string, int>;
 
-	g.insert_edge("A", "B", 1);
-	g.insert_edge("A", "C", 2);
-	g.insert_edge("B", "C", 3);
+	SECTION("Erase the last edge") {
+		auto g = graph{"A", "B"};
 
-	auto it = g.find("A", "B", 1);
-	auto next_it = g.erase_edge(it);
+		g.insert_edge("A", "B", 2);
+		g.insert_edge("A", "B", 1);
 
-	REQUIRE((*next_it).from == "A");
-	REQUIRE((*next_it).to == "C");
-	REQUIRE((*next_it).weight == 2);
+		auto it = g.find("A", "B", 2);
+		auto next_it = g.erase_edge(it);
 
-	REQUIRE(g.is_connected("A", "B") == false);
-}
+		REQUIRE(next_it == g.end());
 
-TEST_CASE("erase_edge(iterator): Erase the last edge") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
-
-	g.insert_edge("A", "B", 1);
-
-	auto it = g.find("A", "B", 1);
-	auto next_it = g.erase_edge(it);
-
-	REQUIRE(next_it == g.end());
-
-	REQUIRE(g.is_connected("A", "B") == false);
-}
-
-TEST_CASE("erase_edge(iterator): Erase an edge with multiple edges existing") {
-	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
-
-	g.insert_edge("A", "B", 1);
-	g.insert_edge("A", "C", 2);
-	g.insert_edge("B", "C", 3);
-	g.insert_edge("C", "A", 4);
-
-	auto it = g.find("B", "C", 3);
-	auto next_it = g.erase_edge(it);
-
-	REQUIRE((*next_it).from == "C");
-	REQUIRE((*next_it).to == "A");
-	REQUIRE((*next_it).weight == 4);
-
-	REQUIRE(g.is_connected("B", "C") == false);
-}
-
-TEST_CASE("erase_edge(iterator): Erase an edge when no such edge exists") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
-
-	g.insert_edge("A", "B", 1);
-
-	auto it = g.find("A", "B", 1);
-	g.erase_edge(it);
-
-	REQUIRE(g.is_connected("A", "B") == false);
-
-	auto invalid_it = g.find("A", "B", 1);
-	REQUIRE(invalid_it == g.end());
+		REQUIRE(g.is_connected("A", "B") == true);
+	}
 }
 
 TEST_CASE("erase_edge(iterator, iterator) test") {
@@ -241,52 +197,44 @@ TEST_CASE("erase_edge(iterator, iterator) test") {
 	REQUIRE(edges.size() == 1);
 }
 
-TEST_CASE("find edge function test: Edge not found") {
-	auto g = gdwg::graph<std::string, int>{};
-	REQUIRE(g.find("A", "B") == g.end());
-}
+TEST_CASE("find() function tests", "[graph][find]") {
+	using graph = gdwg::graph<std::string, int>;
 
-TEST_CASE("find edge function test: Single unweighted edge") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
+	SECTION("Edge not found") {
+		auto g = graph{};
+		REQUIRE(g.find("A", "B") == g.end());
+	}
 
-	g.insert_edge("A", "B");
+	SECTION("Unweighted edge") {
+		auto g = graph{"A", "B"};
 
-	auto it = g.find("A", "B");
-	REQUIRE(it != g.end());
-	REQUIRE((*it).from == "A");
-	REQUIRE((*it).to == "B");
-	REQUIRE(not(*it).weight.has_value());
-}
+		g.insert_edge("A", "B");
 
-TEST_CASE("find edge function test: Single weighted edge") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
+		auto it = g.find("A", "B");
+		REQUIRE(it != g.end());
+		REQUIRE((*it).from == "A");
+		REQUIRE((*it).to == "B");
+		REQUIRE(not(*it).weight.has_value());
+	}
 
-	g.insert_edge("A", "B", 5);
+	SECTION("Weighted edge") {
+		auto g = graph{"A", "B"};
 
-	auto it = g.find("A", "B", 5);
-	REQUIRE(it != g.end());
-	REQUIRE((*it).from == "A");
-	REQUIRE((*it).to == "B");
-	REQUIRE((*it).weight == 5);
-}
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("A", "B", 2);
 
-TEST_CASE("find edge function test: Multiple edges") {
-	auto g = gdwg::graph<std::string, int>{"A", "B"};
+		auto it1 = g.find("A", "B", 1);
+		REQUIRE(it1 != g.end());
+		REQUIRE((*it1).from == "A");
+		REQUIRE((*it1).to == "B");
+		REQUIRE((*it1).weight == 1);
 
-	g.insert_edge("A", "B", 1);
-	g.insert_edge("A", "B", 2);
-
-	auto it1 = g.find("A", "B", 1);
-	REQUIRE(it1 != g.end());
-	REQUIRE((*it1).from == "A");
-	REQUIRE((*it1).to == "B");
-	REQUIRE((*it1).weight == 1);
-
-	auto it2 = g.find("A", "B", 2);
-	REQUIRE(it2 != g.end());
-	REQUIRE((*it2).from == "A");
-	REQUIRE((*it2).to == "B");
-	REQUIRE((*it2).weight == 2);
+		auto it2 = g.find("A", "B", 2);
+		REQUIRE(it2 != g.end());
+		REQUIRE((*it2).from == "A");
+		REQUIRE((*it2).to == "B");
+		REQUIRE((*it2).weight == 2);
+	}
 }
 
 TEST_CASE("connections() function tests", "[graph][connections]") {

@@ -288,3 +288,34 @@ TEST_CASE("find edge function test: Multiple edges") {
 	REQUIRE((*it2).to == "B");
 	REQUIRE((*it2).weight == 2);
 }
+
+TEST_CASE("connections() test: Connections from a node that exists and Connections are sorted in ascending order") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C", "D"};
+
+	g.insert_edge("A", "D", 3);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("A", "B", 1);
+
+	std::vector<std::string> expected = {"B", "C", "D"};
+	auto result = g.connections("A");
+
+	REQUIRE(result == expected);
+}
+
+TEST_CASE("connections() test: Connections from a node with no outgoing edges") {
+	auto g = gdwg::graph<std::string, int>{"A", "B"};
+
+	g.insert_edge("A", "B", 1);
+
+	std::vector<std::string> expected = {};
+	auto result = g.connections("B");
+
+	REQUIRE(result == expected);
+}
+
+TEST_CASE("connections() test: Connections from a node that does not exist") {
+	auto g = gdwg::graph<std::string, int>{"A"};
+
+	REQUIRE_THROWS_WITH(g.connections("B"),
+	                    "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+}

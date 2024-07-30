@@ -319,3 +319,35 @@ TEST_CASE("connections() test: Connections from a node that does not exist") {
 	REQUIRE_THROWS_WITH(g.connections("B"),
 	                    "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
 }
+
+TEST_CASE("Nodes function returns all stored nodes sorted in ascending order", "[graph][nodes]") {
+	SECTION("Empty graph") {
+		auto g = gdwg::graph<std::string, int>{};
+		std::vector<std::string> expected = {};
+		auto result = g.nodes();
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Single node") {
+		auto g = gdwg::graph<std::string, int>{"A"};
+		std::vector<std::string> expected = {"A"};
+		auto result = g.nodes();
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Multiple nodes, sorted in ascending order") {
+		auto g = gdwg::graph<std::string, int>{"D", "C", "A", "B"};
+		std::vector<std::string> expected = {"A", "B", "C", "D"};
+		auto result = g.nodes();
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Nodes with edges") {
+		auto g = gdwg::graph<std::string, int>{"C", "A", "B"};
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("B", "C", 2);
+		std::vector<std::string> expected = {"A", "B", "C"};
+		auto result = g.nodes();
+		REQUIRE(result == expected);
+	}
+}

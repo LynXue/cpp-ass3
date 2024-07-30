@@ -298,3 +298,52 @@ TEST_CASE("Nodes function returns all stored nodes sorted in ascending order", "
 		REQUIRE(result == expected);
 	}
 }
+
+TEST_CASE("edges function tests", "[graph][edges]") {
+	using graph = gdwg::graph<std::string, int>;
+
+	SECTION("Edges from existing nodes") {
+		auto g = graph{"A", "B", "C"};
+
+		g.insert_edge("A", "B", 2);
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("A", "C", 3);
+
+		auto result = g.edges("A", "B");
+		REQUIRE(result.size() == 2);
+
+		REQUIRE(result[0]->get_nodes() == std::make_pair(std::string("A"), std::string("B")));
+		REQUIRE(result[0]->get_weight().value() == 1);
+
+		REQUIRE(result[1]->get_nodes() == std::make_pair(std::string("A"), std::string("B")));
+		REQUIRE(result[1]->get_weight().value() == 2);
+	}
+
+	SECTION("No edges between nodes") {
+		auto g = graph{"A", "B", "C"};
+
+		g.insert_edge("A", "C", 2);
+		g.insert_edge("B", "C", 3);
+
+		auto result = g.edges("A", "B");
+		REQUIRE(result.empty());
+	}
+
+	SECTION("Edges from non-existing src node") {
+		auto g = graph{"A", "B"};
+
+		g.insert_edge("A", "B", 2);
+
+		REQUIRE_THROWS_WITH(g.edges("C", "B"),
+		                    "Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
+	}
+
+	SECTION("Edges from non-existing dst node") {
+		auto g = graph{"A", "B"};
+
+		g.insert_edge("A", "B", 2);
+
+		REQUIRE_THROWS_WITH(g.edges("A", "C"),
+		                    "Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
+	}
+}

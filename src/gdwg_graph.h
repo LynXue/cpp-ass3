@@ -339,7 +339,7 @@ namespace gdwg {
 		}
 		auto node = std::make_shared<N>(value);
 		auto result = nodes_.insert(node);
-		return result.second; // 如果插入成功，result.second 为 true，否则为 false
+		return result.second;
 	}
 
 	template<typename N, typename E>

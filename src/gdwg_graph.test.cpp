@@ -346,4 +346,34 @@ TEST_CASE("edges function tests", "[graph][edges]") {
 		REQUIRE_THROWS_WITH(g.edges("A", "C"),
 		                    "Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
 	}
+
+	SECTION("Edges are sorted in ascending order by weight") {
+		auto g = graph{"A", "B", "C"};
+
+		g.insert_edge("A", "B", 10);
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("A", "B", 5);
+
+		auto result = g.edges("A", "B");
+		REQUIRE(result.size() == 3);
+
+		REQUIRE(result[0]->get_weight().value() == 1);
+		REQUIRE(result[1]->get_weight().value() == 5);
+		REQUIRE(result[2]->get_weight().value() == 10);
+	}
+
+	SECTION("Edges include unweighted and weighted edges sorted correctly") {
+		auto g = graph{"A", "B"};
+
+		g.insert_edge("A", "B", 5);
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("A", "B");
+
+		auto result = g.edges("A", "B");
+		REQUIRE(result.size() == 3);
+
+		REQUIRE(result[0]->is_weighted() == false);
+		REQUIRE(result[1]->get_weight().value() == 1);
+		REQUIRE(result[2]->get_weight().value() == 5);
+	}
 }

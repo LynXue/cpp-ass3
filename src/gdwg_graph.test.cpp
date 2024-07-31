@@ -389,20 +389,14 @@ TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
 	}
 
 	SECTION("Test equality operator for graphs with same nodes and edges") {
-		auto g1 = graph{};
+		auto g1 = graph{"A", "B", "C"};
 
-		g1.insert_node("A");
-		g1.insert_node("B");
-		g1.insert_node("C");
 		g1.insert_edge("A", "B", 1);
 		g1.insert_edge("B", "C", 2);
 		g1.insert_edge("C", "A", 3);
 
-		auto g2 = graph{};
+		auto g2 = graph{"A", "B", "C"};
 
-		g2.insert_node("A");
-		g2.insert_node("B");
-		g2.insert_node("C");
 		g2.insert_edge("A", "B", 1);
 		g2.insert_edge("B", "C", 2);
 		g2.insert_edge("C", "A", 3);
@@ -411,12 +405,8 @@ TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
 	}
 
 	SECTION("Test equality operator for graphs with different nodes") {
-		auto g1 = graph{};
-
-		g1.insert_node("A");
-		g1.insert_node("B");
-
-		auto g2 = graph{};
+		auto g1 = graph{"A", "B", "C"};
+		auto g2 = graph{"A", "B"};
 
 		g2.insert_node("A");
 		g2.insert_node("B");

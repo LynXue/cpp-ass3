@@ -184,6 +184,8 @@ namespace gdwg {
 		[[nodiscard]] auto end() const -> iterator;
 
 		[[nodiscard]] auto operator==(graph const& other) const -> bool;
+		template<typename T, typename U>
+		friend auto operator<<(std::ostream& os, graph<T, U> const& g) -> std::ostream&;
 
 	 private:
 		struct node_cmp {
@@ -668,6 +670,32 @@ namespace gdwg {
 		}
 
 		return true;
+	}
+
+	template<typename N, typename E>
+	auto operator<<(std::ostream& os, graph<N, E> const& g) -> std::ostream& {
+		os << "\n";
+		for (const auto& node : g.nodes_) {
+			os << *node << " (\n";
+
+			std::vector<std::string> edges;
+
+			for (const auto& edge : g.edges_) {
+				auto nodes = edge->get_nodes();
+				if (nodes.first == *node) {
+					edges.push_back("  " + edge->print_edge());
+				}
+			}
+
+			std::sort(edges.begin(), edges.end());
+
+			for (const auto& edge_str : edges) {
+				os << edge_str << "\n";
+			}
+
+			os << ")\n";
+		}
+		return os;
 	}
 
 } // namespace gdwg

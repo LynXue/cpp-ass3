@@ -219,6 +219,33 @@ TEST_CASE("merge_replace_node: no duplicate edges") {
 	REQUIRE(edges[1]->get_weight().value() == 2);
 }
 
+TEST_CASE("erase_node() function tests", "[graph][erase_node]") {
+	using graph = gdwg::graph<std::string, int>;
+
+	SECTION("Erase a node that does not exist") {
+		auto g = graph{"A"};
+
+		REQUIRE(g.erase_node("B") == false);
+		REQUIRE(g.is_node("A") == true);
+	}
+
+	SECTION("Erase a node that exists and has edges") {
+		auto g = graph{"A", "B", "C"};
+
+		g.insert_edge("A", "B", 1);
+		g.insert_edge("B", "C", 2);
+		g.insert_edge("A", "C", 3);
+
+		REQUIRE(g.erase_node("B") == true);
+		REQUIRE(g.is_node("B") == false);
+
+		auto expected = std::vector<std::string>{"C"};
+		auto result = g.connections("A");
+
+		REQUIRE(result == expected);
+	}
+}
+
 TEST_CASE("Erase a weighted edge that exists") {
 	auto g = gdwg::graph<std::string, int>{"A", "B"};
 
@@ -300,6 +327,20 @@ TEST_CASE("erase_edge(iterator, iterator) test") {
 
 	edges = g.edges("C", "D");
 	REQUIRE(edges.size() == 1);
+}
+
+TEST_CASE("Test empty function for gdwg::graph", "[graph][empty]") {
+	using graph = gdwg::graph<std::string, int>;
+
+	SECTION("Test empty function on an empty graph") {
+		auto g = graph{};
+		REQUIRE(g.empty() == true);
+	}
+
+	SECTION("Test empty function after inserting nodes") {
+		auto g = graph{"A"};
+		REQUIRE(g.empty() == false);
+	}
 }
 
 TEST_CASE("find() function tests", "[graph][find]") {

@@ -78,6 +78,42 @@ TEST_CASE("Test graph copy and move constructors") {
 	}
 }
 
+TEST_CASE("Test graph copy and move assignment operators") {
+	auto g = gdwg::graph<int, int>{1, 2, 3};
+
+	g.insert_edge(1, 2, 5);
+	g.insert_edge(2, 3, 10);
+
+	SECTION("Test copy assignment operator") {
+		auto g_copy = gdwg::graph<int, int>{};
+		g_copy = g;
+
+		REQUIRE(g_copy.nodes().size() == 3);
+		REQUIRE(g_copy.is_node(1));
+		REQUIRE(g_copy.is_node(2));
+		REQUIRE(g_copy.is_node(3));
+		REQUIRE(g_copy.is_connected(1, 2));
+		REQUIRE(g_copy.is_connected(2, 3));
+		REQUIRE_FALSE(g_copy.is_connected(1, 3));
+	}
+
+	SECTION("Test move assignment operator") {
+		auto g_move = gdwg::graph<int, int>{};
+		g_move = std::move(g);
+
+		REQUIRE(g_move.nodes().size() == 3);
+		REQUIRE(g_move.is_node(1));
+		REQUIRE(g_move.is_node(2));
+		REQUIRE(g_move.is_node(3));
+		REQUIRE(g_move.is_connected(1, 2));
+		REQUIRE(g_move.is_connected(2, 3));
+		REQUIRE_FALSE(g_move.is_connected(1, 3));
+
+		REQUIRE(g.empty());
+		REQUIRE(g.nodes().size() == 0);
+	}
+}
+
 TEST_CASE("Insert nodes") {
 	auto g = gdwg::graph<std::string, int>{};
 	REQUIRE(g.insert_node("A") == true);

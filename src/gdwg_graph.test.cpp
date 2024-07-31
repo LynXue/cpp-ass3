@@ -37,10 +37,44 @@ TEST_CASE("Test constructors for gdwg::graph", "[graph][constructor]") {
 
 	SECTION("Range constructor with empty range") {
 		auto empty_vec = std::vector<std::string>{};
-		gdwg::graph<std::string, int> g(empty_vec.begin(), empty_vec.end());
+		auto g = gdwg::graph<std::string, int>(empty_vec.begin(), empty_vec.end());
 
 		REQUIRE(g.empty());
 		REQUIRE(g.nodes().empty());
+	}
+}
+
+TEST_CASE("Test graph copy and move constructors") {
+	auto g = gdwg::graph<int, int>{1, 2, 3};
+
+	g.insert_edge(1, 2, 5);
+	g.insert_edge(2, 3, 10);
+
+	SECTION("Test copy constructor") {
+		auto g_copy = g;
+
+		REQUIRE(g_copy.nodes().size() == 3);
+		REQUIRE(g_copy.is_node(1));
+		REQUIRE(g_copy.is_node(2));
+		REQUIRE(g_copy.is_node(3));
+		REQUIRE(g_copy.is_connected(1, 2));
+		REQUIRE(g_copy.is_connected(2, 3));
+		REQUIRE_FALSE(g_copy.is_connected(1, 3));
+	}
+
+	SECTION("Test move constructor") {
+		auto g_move = std::move(g);
+
+		REQUIRE(g_move.nodes().size() == 3);
+		REQUIRE(g_move.is_node(1));
+		REQUIRE(g_move.is_node(2));
+		REQUIRE(g_move.is_node(3));
+		REQUIRE(g_move.is_connected(1, 2));
+		REQUIRE(g_move.is_connected(2, 3));
+		REQUIRE_FALSE(g_move.is_connected(1, 3));
+
+		REQUIRE(g.empty());
+		REQUIRE(g.nodes().size() == 0);
 	}
 }
 

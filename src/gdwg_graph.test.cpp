@@ -476,4 +476,35 @@ TEST_CASE("Testing operator<< for graph output") {
 		}
 	}
 	g.insert_node(64);
+
+	auto out = std::ostringstream{};
+	out << g;
+	auto const expected_output = std::string_view(R"(
+1 (
+  1 -> 5 | W | -1
+)
+2 (
+  2 -> 1 | W | 1
+  2 -> 4 | U
+)
+3 (
+  3 -> 2 | W | 2
+  3 -> 6 | W | -8
+)
+4 (
+  4 -> 1 | U
+  4 -> 1 | W | -4
+  4 -> 5 | W | 3
+)
+5 (
+  5 -> 2 | U
+)
+6 (
+  6 -> 2 | W | 5
+  6 -> 3 | W | 10
+)
+64 (
+)
+)");
+	CHECK(out.str() == expected_output);
 }

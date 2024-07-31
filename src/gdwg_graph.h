@@ -183,6 +183,8 @@ namespace gdwg {
 		[[nodiscard]] auto begin() const -> iterator;
 		[[nodiscard]] auto end() const -> iterator;
 
+		[[nodiscard]] auto operator==(graph const& other) const -> bool;
+
 	 private:
 		struct node_cmp {
 			using is_transparent = void;
@@ -632,6 +634,40 @@ namespace gdwg {
 		}
 
 		return result;
+	}
+
+	template<typename N, typename E>
+	[[nodiscard]] auto graph<N, E>::operator==(graph const& other) const -> bool {
+		if (nodes_.size() != other.nodes_.size()) {
+			return false;
+		}
+
+		for (const auto& node : nodes_) {
+			if (!other.is_node(*node)) {
+				return false;
+			}
+		}
+
+		if (edges_.size() != other.edges_.size()) {
+			return false;
+		}
+
+		for (const auto& edge : edges_) {
+			auto nodes = edge->get_nodes();
+			auto weight = edge->get_weight();
+
+			auto it = std::find_if(other.edges_.begin(),
+			                       other.edges_.end(),
+			                       [&nodes, &weight](const std::unique_ptr<typename graph<N, E>::edge>& e) {
+				                       return e->get_nodes() == nodes && e->get_weight() == weight;
+			                       });
+
+			if (it == other.edges_.end()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 } // namespace gdwg

@@ -424,4 +424,40 @@ TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
 
 		REQUIRE_FALSE(g1 == g2);
 	}
+
+	SECTION("Test equality operator for graphs with different edge weights") {
+		auto g1 = graph{"A", "B"};
+		g1.insert_edge("A", "B", 1);
+
+		auto g2 = graph{"A", "B"};
+		g2.insert_edge("A", "B", 2);
+
+		REQUIRE_FALSE(g1 == g2);
+	}
+
+	SECTION("Test equality operator for graphs with same nodes but different connections") {
+		auto g1 = graph{"A", "B"};
+		g1.insert_edge("A", "B", 1);
+
+		auto g2 = graph{"A", "B"};
+		g2.insert_edge("B", "A", 1);
+
+		REQUIRE_FALSE(g1 == g2);
+	}
+
+	SECTION("Test equality operator for complex graphs") {
+		auto g1 = graph{"A", "B", "C", "D"};
+		g1.insert_edge("A", "B", 1);
+		g1.insert_edge("A", "B", 2);
+		g1.insert_edge("B", "C", 3);
+		g1.insert_edge("C", "D", 4);
+
+		auto g2 = graph{"A", "B", "C", "D"};
+		g2.insert_edge("A", "B", 1);
+		g2.insert_edge("A", "B", 2);
+		g2.insert_edge("B", "C", 3);
+		g2.insert_edge("C", "D", 4);
+
+		REQUIRE(g1 == g2);
+	}
 }

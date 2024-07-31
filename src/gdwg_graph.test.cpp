@@ -408,10 +408,6 @@ TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
 		auto g1 = graph{"A", "B", "C"};
 		auto g2 = graph{"A", "B"};
 
-		g2.insert_node("A");
-		g2.insert_node("B");
-		g2.insert_node("C");
-
 		REQUIRE_FALSE(g1 == g2);
 	}
 
@@ -450,4 +446,34 @@ TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
 
 		REQUIRE(g1 == g2);
 	}
+}
+
+TEST_CASE("Testing operator<< for graph output") {
+	using graph = gdwg::graph<int, int>;
+	auto const v = std::vector<std::tuple<int, int, std::optional<int>>>{
+	    {4, 1, -4},
+	    {3, 2, 2},
+	    {2, 4, std::nullopt},
+	    {2, 1, 1},
+	    {4, 1, std::nullopt},
+	    {6, 2, 5},
+	    {6, 3, 10},
+	    {1, 5, -1},
+	    {3, 6, -8},
+	    {4, 5, 3},
+	    {5, 2, std::nullopt},
+	};
+
+	auto g = graph{};
+	for (const auto& [from, to, weight] : v) {
+		g.insert_node(from);
+		g.insert_node(to);
+		if (weight.has_value()) {
+			g.insert_edge(from, to, weight.value());
+		}
+		else {
+			g.insert_edge(from, to);
+		}
+	}
+	g.insert_node(64);
 }

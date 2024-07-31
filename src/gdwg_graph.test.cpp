@@ -343,6 +343,44 @@ TEST_CASE("Test empty function for gdwg::graph", "[graph][empty]") {
 	}
 }
 
+TEST_CASE("Test is_connected for gdwg::graph", "[graph][is_connected]") {
+	using graph = gdwg::graph<std::string, int>;
+
+	SECTION("Test is_connected with existing edge") {
+		auto g = graph{"A", "B"};
+		g.insert_edge("A", "B", 1);
+
+		REQUIRE(g.is_connected("A", "B") == true);
+	}
+
+	SECTION("Test is_connected with non-existing edge") {
+		auto g = graph{"A", "B"};
+
+		REQUIRE(g.is_connected("A", "B") == false);
+	}
+
+	SECTION("Test is_connected with non-existing source node") {
+		auto g = graph{"A"};
+
+		REQUIRE_THROWS_WITH(g.is_connected("A", "B"),
+		                    "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+	}
+
+	SECTION("Test is_connected with non-existing destination node") {
+		auto g = graph{"B"};
+
+		REQUIRE_THROWS_WITH(g.is_connected("A", "B"),
+		                    "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+	}
+
+	SECTION("Test is_connected with both non-existing source and destination nodes") {
+		auto g = graph{};
+
+		REQUIRE_THROWS_WITH(g.is_connected("A", "B"),
+		                    "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+	}
+}
+
 TEST_CASE("find() function tests", "[graph][find]") {
 	using graph = gdwg::graph<std::string, int>;
 

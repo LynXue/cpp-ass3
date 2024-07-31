@@ -2,11 +2,46 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE("basic test") {
-	auto g = gdwg::graph<int, std::string>{};
-	auto n = 5;
-	g.insert_node(n);
-	REQUIRE(g.is_node(n) == true);
+TEST_CASE("Test constructors for gdwg::graph", "[graph][constructor]") {
+	SECTION("Default constructor") {
+		auto g = gdwg::graph<std::string, int>{};
+
+		REQUIRE(g.empty());
+		REQUIRE(g.nodes().empty());
+	}
+
+	SECTION("Initializer_list constructor") {
+		auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
+
+		REQUIRE_FALSE(g.empty());
+
+		auto nodes = g.nodes();
+		REQUIRE(nodes.size() == 3);
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "A") != nodes.end());
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "B") != nodes.end());
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "C") != nodes.end());
+	}
+
+	SECTION("Range constructor") {
+		auto node_vec = std::vector<std::string>{"A", "B", "C"};
+		auto g = gdwg::graph<std::string, int>(node_vec.begin(), node_vec.end());
+
+		REQUIRE_FALSE(g.empty());
+
+		auto nodes = g.nodes();
+		REQUIRE(nodes.size() == 3);
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "A") != nodes.end());
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "B") != nodes.end());
+		REQUIRE(std::find(nodes.begin(), nodes.end(), "C") != nodes.end());
+	}
+
+	SECTION("Range constructor with empty range") {
+		auto empty_vec = std::vector<std::string>{};
+		gdwg::graph<std::string, int> g(empty_vec.begin(), empty_vec.end());
+
+		REQUIRE(g.empty());
+		REQUIRE(g.nodes().empty());
+	}
 }
 
 TEST_CASE("Insert nodes") {

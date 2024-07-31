@@ -377,3 +377,51 @@ TEST_CASE("edges function tests", "[graph][edges]") {
 		REQUIRE(result[2]->get_weight().value() == 5);
 	}
 }
+
+TEST_CASE("Test equality operator for gdwg::graph", "[graph][operator==]") {
+	using graph = gdwg::graph<std::string, int>;
+
+	SECTION("Test equality operator for empty graphs") {
+		auto g1 = graph{};
+		auto g2 = graph{};
+
+		REQUIRE(g1 == g2);
+	}
+
+	SECTION("Test equality operator for graphs with same nodes and edges") {
+		auto g1 = graph{};
+
+		g1.insert_node("A");
+		g1.insert_node("B");
+		g1.insert_node("C");
+		g1.insert_edge("A", "B", 1);
+		g1.insert_edge("B", "C", 2);
+		g1.insert_edge("C", "A", 3);
+
+		auto g2 = graph{};
+
+		g2.insert_node("A");
+		g2.insert_node("B");
+		g2.insert_node("C");
+		g2.insert_edge("A", "B", 1);
+		g2.insert_edge("B", "C", 2);
+		g2.insert_edge("C", "A", 3);
+
+		REQUIRE(g1 == g2);
+	}
+
+	SECTION("Test equality operator for graphs with different nodes") {
+		auto g1 = graph{};
+
+		g1.insert_node("A");
+		g1.insert_node("B");
+
+		auto g2 = graph{};
+
+		g2.insert_node("A");
+		g2.insert_node("B");
+		g2.insert_node("C");
+
+		REQUIRE_FALSE(g1 == g2);
+	}
+}

@@ -809,3 +809,41 @@ TEST_CASE("Graph iterator tests", "[graph][iterator]") {
 		REQUIRE(it1 == it2);
 	}
 }
+
+TEST_CASE("Test graph const correctness") {
+	auto g = gdwg::graph<int, int>{1, 2, 3};
+
+	g.insert_edge(1, 2, 5);
+	g.insert_edge(2, 3, 10);
+
+	const gdwg::graph<int, int> const_g = g;
+
+	SECTION("Test const member functions") {
+		REQUIRE(const_g.is_node(1));
+		REQUIRE(const_g.is_connected(1, 2));
+		REQUIRE(const_g.nodes().size() == 3);
+		REQUIRE(const_g.edges(1, 2).size() == 1);
+		REQUIRE(const_g.edges(2, 3).size() == 1);
+		REQUIRE(const_g.connections(1).size() == 1);
+		REQUIRE(const_g.connections(2).size() == 1);
+		REQUIRE(const_g.connections(3).size() == 0);
+		REQUIRE_FALSE(const_g.is_connected(1, 3));
+	}
+
+	SECTION("Test const iterators") {
+		auto it = const_g.begin();
+		auto end = const_g.end();
+		REQUIRE(it != end);
+
+		auto edges = std::vector<std::tuple<int, int, std::optional<int>>>{};
+		while (it != end) {
+			auto [from, to, weight] = *it;
+			edges.emplace_back(from, to, weight);
+			++it;
+		}
+
+		REQUIRE(edges.size() == 2);
+		REQUIRE(edges[0] == std::make_tuple(1, 2, std::optional<int>{5}));
+		REQUIRE(edges[1] == std::make_tuple(2, 3, std::optional<int>{10}));
+	}
+}

@@ -28,7 +28,7 @@ auto main() -> int {
 	for (auto const& [from, to, weight] : g) {
 		std::cout << from << " -> " << to << " ";
 		if (weight.value()) {
-			std::cout << "(weight " << weight.value() << ")\n";
+			std::cout << "(weight " << *weight << ")\n";
 		}
 		else {
 			std::cout << "(no weight)\n";

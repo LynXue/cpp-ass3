@@ -758,7 +758,7 @@ TEST_CASE("Graph iterator tests", "[graph][iterator]") {
 		auto value = *it;
 		REQUIRE(value.from == 1);
 		REQUIRE(value.to == 2);
-		REQUIRE(!value.weight.has_value());
+		REQUIRE(not value.weight.has_value());
 
 		++it;
 		value = *it;
@@ -770,7 +770,7 @@ TEST_CASE("Graph iterator tests", "[graph][iterator]") {
 		value = *it;
 		REQUIRE(value.from == 3);
 		REQUIRE(value.to == 1);
-		REQUIRE(!value.weight.has_value());
+		REQUIRE(not value.weight.has_value());
 
 		++it;
 		REQUIRE(it == g.end());
@@ -795,7 +795,7 @@ TEST_CASE("Graph iterator tests", "[graph][iterator]") {
 		value = *it;
 		REQUIRE(value.from == 1);
 		REQUIRE(value.to == 2);
-		REQUIRE(!value.weight.has_value());
+		REQUIRE(not value.weight.has_value());
 	}
 
 	SECTION("Iterator equality operators") {

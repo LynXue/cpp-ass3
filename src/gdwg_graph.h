@@ -86,10 +86,10 @@ namespace gdwg {
 				}
 
 				if (lhs->is_weighted() != rhs->is_weighted()) {
-					return !lhs->is_weighted();
+					return not lhs->is_weighted();
 				}
 
-				if (lhs->is_weighted() && rhs->is_weighted()) {
+				if (lhs->is_weighted() and rhs->is_weighted()) {
 					return lhs->get_weight() < rhs->get_weight();
 				}
 
@@ -208,7 +208,7 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto weighted_edge<N, E>::print_edge() const -> std::string {
-		std::ostringstream oss;
+		auto oss = std::ostringstream{};
 		oss << *src_ << " -> " << *dst_ << " | W | " << weight_;
 		return oss.str();
 	}
@@ -236,7 +236,7 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto unweighted_edge<N, E>::print_edge() const -> std::string {
-		std::ostringstream oss;
+		auto oss = std::ostringstream{};
 		oss << *src_ << " -> " << *dst_ << " | U";
 		return oss.str();
 	}
@@ -334,7 +334,6 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	auto graph<N, E>::insert_node(N const& value) -> bool {
-		// Check if the node already exists
 		if (is_node(value)) {
 			return false;
 		}
@@ -350,7 +349,7 @@ namespace gdwg {
 			                         "exist");
 		}
 
-		std::unique_ptr<edge> new_edge;
+		auto new_edge = std::unique_ptr<edge>{};
 		if (weight) {
 			new_edge = std::make_unique<weighted_edge<N, E>>(src, dst, *weight);
 		}
@@ -425,7 +424,7 @@ namespace gdwg {
 
 		for (const auto& edge : edges_) {
 			auto nodes = edge->get_nodes();
-			if (nodes.first == src && nodes.second == dst) {
+			if (nodes.first == src and nodes.second == dst) {
 				return true;
 			}
 		}
@@ -455,11 +454,11 @@ namespace gdwg {
 			                         "don't exist in the graph");
 		}
 
-		std::vector<std::unique_ptr<edge>> new_edges;
+		auto new_edges = std::vector<std::unique_ptr<edge>>{};
 		for (auto it = edges_.begin(); it != edges_.end();) {
 			auto& e = *it;
 			auto nodes = e->get_nodes();
-			bool modified = false;
+			auto modified = false;
 
 			if (nodes.first == old_data) {
 				nodes.first = new_data;
@@ -471,7 +470,7 @@ namespace gdwg {
 			}
 
 			if (modified) {
-				std::unique_ptr<edge> new_edge;
+				auto new_edge = std::unique_ptr<edge>{};
 				if (e->is_weighted()) {
 					new_edge = std::make_unique<weighted_edge<N, E>>(nodes.first, nodes.second, *e->get_weight());
 				}
@@ -505,7 +504,7 @@ namespace gdwg {
 
 		for (auto it = edges_.begin(); it != edges_.end();) {
 			auto nodes = (*it)->get_nodes();
-			if (nodes.first == value || nodes.second == value) {
+			if (nodes.first == value or nodes.second == value) {
 				it = edges_.erase(it);
 			}
 			else {
@@ -528,12 +527,12 @@ namespace gdwg {
 		for (auto it = edges_.begin(); it != edges_.end(); ++it) {
 			auto& e = *it;
 			auto nodes = e->get_nodes();
-			if (nodes.first == src && nodes.second == dst) {
-				if (!weight.has_value() && !e->is_weighted()) {
+			if (nodes.first == src and nodes.second == dst) {
+				if (not weight.has_value() and not e->is_weighted()) {
 					edges_.erase(it);
 					return true;
 				}
-				if (weight.has_value() && e->is_weighted() && e->get_weight() == weight) {
+				if (weight.has_value() and e->is_weighted() and e->get_weight() == weight) {
 					edges_.erase(it);
 					return true;
 				}
@@ -570,11 +569,11 @@ namespace gdwg {
 		for (auto it = edges_.begin(); it != edges_.end(); ++it) {
 			auto& e = *it;
 			auto nodes = e->get_nodes();
-			if (nodes.first == src && nodes.second == dst) {
-				if (!weight.has_value() && !e->is_weighted()) {
+			if (nodes.first == src and nodes.second == dst) {
+				if (not weight.has_value() and not e->is_weighted()) {
 					return iterator(it);
 				}
-				if (weight.has_value() && e->is_weighted() && e->get_weight() == weight) {
+				if (weight.has_value() and e->is_weighted() and e->get_weight() == weight) {
 					return iterator(it);
 				}
 			}
@@ -599,7 +598,7 @@ namespace gdwg {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
 		}
 
-		std::vector<N> connected_nodes;
+		auto connected_nodes = std::vector<N>{};
 		for (const auto& e : edges_) {
 			auto nodes = e->get_nodes();
 			if (nodes.first == src) {
@@ -613,16 +612,16 @@ namespace gdwg {
 
 	template<typename N, typename E>
 	[[nodiscard]] auto graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
-		if (!is_node(src) || !is_node(dst)) {
+		if (not is_node(src) or not is_node(dst)) {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the "
 			                         "graph");
 		}
 
-		std::vector<std::unique_ptr<edge>> result;
+		auto result = std::vector<std::unique_ptr<edge>>{};
 
 		for (const auto& e : edges_) {
 			auto nodes = e->get_nodes();
-			if (nodes.first == src && nodes.second == dst) {
+			if (nodes.first == src and nodes.second == dst) {
 				if (e->is_weighted()) {
 					result.push_back(std::make_unique<weighted_edge<N, E>>(nodes.first, nodes.second, *e->get_weight()));
 				}
@@ -642,7 +641,7 @@ namespace gdwg {
 		}
 
 		for (const auto& node : nodes_) {
-			if (!other.is_node(*node)) {
+			if (not other.is_node(*node)) {
 				return false;
 			}
 		}
@@ -658,7 +657,7 @@ namespace gdwg {
 			auto it = std::find_if(other.edges_.begin(),
 			                       other.edges_.end(),
 			                       [&nodes, &weight](const std::unique_ptr<typename graph<N, E>::edge>& e) {
-				                       return e->get_nodes() == nodes && e->get_weight() == weight;
+				                       return e->get_nodes() == nodes and e->get_weight() == weight;
 			                       });
 
 			if (it == other.edges_.end()) {
@@ -675,7 +674,7 @@ namespace gdwg {
 		for (const auto& node : g.nodes_) {
 			os << *node << " (\n";
 
-			std::vector<std::string> edges;
+			auto edges = std::vector<std::string>{};
 
 			for (const auto& edge : g.edges_) {
 				auto nodes = edge->get_nodes();

@@ -329,6 +329,12 @@ TEST_CASE("erase_edge(iterator, iterator) test") {
 	REQUIRE(edges.size() == 1);
 }
 
+TEST_CASE("Test clear function for gdwg::graph", "[graph][clear]") {
+	auto g = gdwg::graph<int, int>{1, 2, 3};
+	g.clear();
+	REQUIRE(g.empty() == true);
+}
+
 TEST_CASE("Test empty function for gdwg::graph", "[graph][empty]") {
 	using graph = gdwg::graph<std::string, int>;
 
@@ -691,4 +697,44 @@ TEST_CASE("Testing operator<< for graph output") {
 )
 )");
 	CHECK(out.str() == expected_output);
+}
+
+TEST_CASE("begin() and end() function tests") {
+	auto g = gdwg::graph<std::string, int>{"A", "B", "C"};
+
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("B", "C", 2);
+	g.insert_edge("B", "A", 3);
+
+	SECTION("Non-empty graph begin and end") {
+		auto it = g.begin();
+		REQUIRE(it != g.end());
+		REQUIRE((*it).from == "A");
+		REQUIRE((*it).to == "B");
+		REQUIRE((*it).weight == 1);
+
+		auto edges = std::vector<gdwg::graph<std::string, int>::iterator::value_type>{};
+		for (auto it = g.begin(); it != g.end(); ++it) {
+			edges.push_back(*it);
+		}
+
+		REQUIRE(edges.size() == 3);
+
+		REQUIRE(edges[0].from == "A");
+		REQUIRE(edges[0].to == "B");
+		REQUIRE(edges[0].weight == 1);
+
+		REQUIRE(edges[1].from == "B");
+		REQUIRE(edges[1].to == "A");
+		REQUIRE(edges[1].weight == 3);
+
+		REQUIRE(edges[2].from == "B");
+		REQUIRE(edges[2].to == "C");
+		REQUIRE(edges[2].weight == 2);
+	}
+
+	SECTION("Empty graph begin and end") {
+		auto empty_graph = gdwg::graph<std::string, int>{};
+		REQUIRE(empty_graph.begin() == empty_graph.end());
+	}
 }

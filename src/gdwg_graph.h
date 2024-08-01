@@ -10,9 +10,6 @@
 #include <utility>
 #include <vector>
 
-// TODO: Make both graph and edge generic
-//       ... this won't just compile
-//       straight away
 namespace gdwg {
 	template<typename N, typename E>
 	class edge {

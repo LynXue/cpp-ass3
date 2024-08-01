@@ -30,7 +30,7 @@ namespace gdwg {
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
 	 public:
-		weighted_edge(N src, N dst, E weight)
+		weighted_edge(N const& src, N const& dst, E const& weight)
 		: src_(std::make_shared<N>(src))
 		, dst_(std::make_shared<N>(dst))
 		, weight_(weight) {}
@@ -51,7 +51,7 @@ namespace gdwg {
 	template<typename N, typename E>
 	class unweighted_edge : public edge<N, E> {
 	 public:
-		unweighted_edge(N src, N dst)
+		unweighted_edge(N const& src, N const& dst)
 		: src_(std::make_shared<N>(src))
 		, dst_(std::make_shared<N>(dst)) {}
 

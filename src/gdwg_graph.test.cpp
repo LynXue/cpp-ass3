@@ -738,3 +738,41 @@ TEST_CASE("begin() and end() function tests") {
 		REQUIRE(empty_graph.begin() == empty_graph.end());
 	}
 }
+
+TEST_CASE("Graph iterator tests", "[graph][iterator]") {
+	using graph = gdwg::graph<int, int>;
+
+	SECTION("Iterator default constructor") {
+		auto it1 = graph::iterator{};
+		auto it2 = graph::iterator{};
+		REQUIRE(it1 == it2);
+	}
+
+	SECTION("Iterator traversal and dereference") {
+		auto g = graph{1, 2, 3};
+		g.insert_edge(1, 2);
+		g.insert_edge(2, 3, 5);
+		g.insert_edge(3, 1);
+
+		auto it = g.begin();
+		auto value = *it;
+		REQUIRE(value.from == 1);
+		REQUIRE(value.to == 2);
+		REQUIRE(!value.weight.has_value());
+
+		++it;
+		value = *it;
+		REQUIRE(value.from == 2);
+		REQUIRE(value.to == 3);
+		REQUIRE(value.weight == 5);
+
+		++it;
+		value = *it;
+		REQUIRE(value.from == 3);
+		REQUIRE(value.to == 1);
+		REQUIRE(!value.weight.has_value());
+
+		++it;
+		REQUIRE(it == g.end());
+	}
+}
